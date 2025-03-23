@@ -228,24 +228,7 @@ export class DynamicFormComponent {
    * Handle field value changes
    */
   onFieldValueChange(key: string, value: any): void {
-    // Handle dependencies between fields
-    const fields = this.config()?.fields || [];
-    const changedField = fields.find(f => f.key === key);
 
-    if (changedField) {
-      // Find fields that depend on the changed field
-      const dependentFields = fields.filter(f => f.dependencies && f.dependencies.includes(key));
-
-      // Update dependent fields if needed
-      if (dependentFields.length > 0) {
-        const formValues = this.form().getRawValue();
-
-        dependentFields.forEach(depField => {
-          // Logic to update dependent fields would go here
-          console.log(`Field ${depField.key} depends on ${key}, which changed to ${value}`);
-        });
-      }
-    }
   }
 
   /**

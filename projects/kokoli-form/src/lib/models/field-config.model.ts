@@ -67,7 +67,6 @@ export interface BaseFieldConfig {
   transformer?: ValueTransformer;
   gridClass?: string; // PrimeFlex grid class for layout
   styleClass?: string; // Additional CSS classes
-  dependencies?: string[]; // Fields this field depends on
   helpText?: string;
 }
 
