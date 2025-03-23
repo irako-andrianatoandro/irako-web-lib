@@ -1,0 +1,84 @@
+name: Build and Test
+
+on:
+  push:
+    branches: [ main, 'feature/**', 'bugfix/**' ]
+  pull_request:
+    branches: [ main ]
+  # Optional: Allow manual triggering
+  workflow_dispatch:
+
+# Set permissions explicitly
+permissions:
+  contents: read
+  actions: read
+  checks: write
+  pull-requests: write
+
+jobs:
+  build:
+    name: Build and Test
+    runs-on: ubuntu-latest
+    # Use concurrency to cancel in-progress jobs when new code is pushed
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}
+      cancel-in-progress: true
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for proper versioning
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        id: lint
+        run: npm run lint
+
+      - name: Build
+        id: build
+        run: npm run build -- --configuration production
+
+      - name: Test
+        id: test
+        run: npm run test -- --no-watch --no-progress --browsers=ChromeHeadless --passWithNoTests
+
+      # Generate a unique build ID that includes branch name and commit SHA
+      - name: Generate build ID
+        id: build-id
+        run: echo "build_id=$(echo ${GITHUB_REF#refs/heads/} | sed 's/\//_/g')-$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+      # Cache build artifacts with unique ID
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-${{ steps.build-id.outputs.build_id }}
+          path: dist/
+          retention-days: 7  # Keep for reasonable time to allow releases
+          if-no-files-found: error  # Fail if build produced no files
+
+      # Add a status check
+      - name: Build status
+        if: always()
+        run: |
+          echo "Build status: ${{ job.status }}"
+          if [ "${{ job.status }}" != "success" ]; then
+            exit 1
+          fi
+
+      # Optional: Upload test coverage reports
+      - name: Upload coverage reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-${{ steps.build-id.outputs.build_id }}
+          path: coverage/
+          retention-days: 7
