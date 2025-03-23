@@ -1,59 +1,90 @@
-# IrakoWebLib
+# Irako Web Lib
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.1.7.
+A collection of utility libraries for Angular development, designed to enhance productivity and simplify common tasks in Angular applications.
 
-## Development server
+## 📦 Libraries
 
-To start a local development server, run:
+### kokoli-form
 
-```bash
-ng serve
-```
+A comprehensive dynamic form generation system for Angular 18+ applications using PrimeNG components with a standalone architecture.
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+#### Key Features
 
-## Code scaffolding
+- **🔧 Configuration-Driven Forms**: Generate complex forms from JSON configurations
+- **🎨 PrimeNG Integration**: Utilizes PrimeNG UI components for all form elements
+- **📱 Responsive Design**: Uses PrimeFlex for responsive layouts
+- **✅ Form Validation**: Supports both built-in and custom validations
+- **🔄 Value Transformation**: Transform values on input and output
+- **⚡ Modern Angular**: Leverages Angular 18 features including signals
+- **🧩 Standalone Components**: Uses Angular's standalone component pattern
+- **🔒 Type-Safe**: Comprehensive TypeScript typing
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+[View kokoli-form documentation](./projects/kokoli-form/README.md)
 
-```bash
-ng generate component component-name
-```
+## 🚀 Getting Started
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+### Prerequisites
 
-```bash
-ng generate --help
-```
+- Node.js (LTS version recommended)
+- npm package manager
+- Angular CLI
 
-## Building
+### Installation
 
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+To use any of the libraries in your Angular project:
 
 ```bash
-ng test
+# For kokoli-form
+npm install @irako-web-lib/kokoli-form
 ```
 
-## Running end-to-end tests
+## 📋 Project Structure
+irako-web-lib/
+├── projects/         # Contains all library packages
+│   ├── kokoli-form/  # Dynamic form generation library
+│   └── ... (future libraries)
+├── package.json      # Root package configuration
+└── README.md         # This documentation
 
-For end-to-end (e2e) testing, run:
+## 🛠 Development
+
+### Setting up the development environment
 
 ```bash
-ng e2e
+# Clone the repository
+git clone https://github.com/yourusername/irako-web-lib.git
+cd irako-web-lib
+
+# Install dependencies
+npm install
+
+# Build all libraries
+npm run build
+
+# Build a specific library
+npm run build kokoli-form
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+## 🔄 Version Management
 
-## Additional Resources
+This project uses semantic versioning. Each library is versioned independently.
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+## 📄 License
+
+[MIT License](LICENSE)
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📬 Contact
+
+If you have any questions or suggestions, please open an issue in the repository.
+
+---
