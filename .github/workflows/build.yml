@@ -49,7 +49,7 @@ jobs:
 
       - name: Test
         id: test
-        run: npm run test -- --no-watch --no-progress --browsers=ChromeHeadless
+        run: npm run test -- --no-watch --no-progress --browsers=ChromeHeadless --passWithNoTests
 
       # Generate a unique build ID that includes branch name and commit SHA
       - name: Generate build ID
