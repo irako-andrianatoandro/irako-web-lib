@@ -1,4 +1,6 @@
 # Irako Web Lib
+[![Build Status](https://github.com/irako-andrianatoandro/irako-web-lib/actions/workflows/build.yml/badge.svg)](https://github.com/irako-andrianatoandro/irako-web-lib/actions/workflows/build.yml)
+
 
 A collection of utility libraries for Angular development, designed to enhance productivity and simplify common tasks in Angular applications.
 
