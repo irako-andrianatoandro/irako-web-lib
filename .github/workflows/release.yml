@@ -3,8 +3,8 @@ name: Release
 on:
   # Only run after build workflow completes successfully on main branch
   workflow_run:
-    workflows: ["Build and Test"]
-    branches: [main]
+    workflows: [ "Build and Test" ]
+    branches: [ main ]
     types:
       - completed
   # Optional: Allow manual release trigger with required input
@@ -46,6 +46,10 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Build
+        id: build
+        run: npm run build -- --configuration production
+
       # Get build ID either from manual input or latest successful build
       - name: Set build ID
         id: set-build-id
@@ -55,28 +59,6 @@ jobs:
           else
             echo "build_id=main-$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
           fi
-
-      - name: List available artifacts
-        run: |
-          echo "Available artifacts from build workflow:"
-          gh api "/repos/${{ github.repository }}/actions/runs/${{ github.event.workflow_run.id }}/artifacts" | jq '.artifacts[] | .name'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      # Download the specific build artifact we want to release
-      - name: Download build artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: dist-${{ steps.set-build-id.outputs.build_id }}
-          path: dist/
-
-      - name: Check artifact integrity
-        run: |
-          if [ ! -d "dist" ] || [ -z "$(ls -A dist)" ]; then
-            echo "Error: Build artifacts are missing or empty!"
-            exit 1
-          fi
-          echo "Build artifacts verified successfully"
 
       - name: Setup Git identity
         run: |
@@ -103,6 +85,11 @@ jobs:
             --title "Release $NEW_VERSION" \
             --generate-notes \
             ./dist/**/*
+
+      - name: npm publish
+        run: npm run publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       # Optional: Notify about release
       - name: Post-release notification
