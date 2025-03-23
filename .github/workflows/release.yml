@@ -88,7 +88,7 @@ jobs:
           find ./dist -type f -exec gh release upload "$NEW_VERSION" {} \;
 
       - name: npm publish
-        run: npm public --access public
+        run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
