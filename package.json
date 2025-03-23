@@ -39,6 +39,8 @@
     "@angular/cli": "^18.2.15",
     "@angular/compiler-cli": "^18.2.13",
     "@eslint/js": "^9.23.0",
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/git": "^10.0.1",
     "@types/jasmine": "~5.1.0",
     "@types/jest": "^29.5.14",
     "@typescript-eslint/eslint-plugin": "^8.27.0",
@@ -52,6 +54,7 @@
     "jest-preset-angular": "^14.5.3",
     "ng-packagr": "^18.2.1",
     "prettier": "^3.5.3",
+    "semantic-release": "^24.2.3",
     "typescript": "~5.5.0",
     "typescript-eslint": "8.27.0"
   }
