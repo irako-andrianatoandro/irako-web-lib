@@ -34,7 +34,7 @@ import { ValidationService } from '../../services';
       [dateFormat]="field().dateFormat || 'mm/dd/yy'"
       [minDate]="field().minDate"
       [maxDate]="field().maxDate"
-      [ngClass]="{ 'ng-invalid ng-dirty': isInvalid() }"
+      [styleClass]="isInvalid() ? 'ng-invalid ng-dirty' : ''"
       (onSelect)="onValueChange($event)"
     ></p-calendar>
 
@@ -62,7 +62,8 @@ export class DateFieldComponent {
 
   isInvalid(): boolean {
     return (
-      (this.control().invalid && (this.control().dirty || this.control().touched || this.submitted())) ??
+      (this.control().invalid &&
+        (this.control().dirty || this.control().touched || this.submitted())) ??
       false
     );
   }

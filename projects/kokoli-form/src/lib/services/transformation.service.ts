@@ -8,7 +8,7 @@ export class TransformationService {
   /**
    * Common transformers for various data types
    */
-  readonly commonTransformers = {
+  public readonly commonTransformers = {
     /**
      * Multiplies/divides a number by a factor
      */
@@ -65,7 +65,7 @@ export class TransformationService {
    * Apply transformer to input value
    * @throws Error if transformer.in() fails
    */
-  applyInTransform<T, R>(
+  public applyInTransform<T, R>(
     transformer: ValueTransformer<T, R> | null | undefined,
     value: T | null | undefined
   ): R | T | null | undefined {
@@ -89,7 +89,7 @@ export class TransformationService {
    * Apply transformer to output value
    * @throws Error if transformer.out() fails
    */
-  applyOutTransform<R, T>(
+  public applyOutTransform<R, T>(
     transformer: ValueTransformer<T, R> | null | undefined,
     value: R | null | undefined
   ): T | R | null | undefined {

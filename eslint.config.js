@@ -2,11 +2,13 @@
 import js from '@eslint/js';
 import tsParser from '@typescript-eslint/parser';
 import tsPlugin from '@typescript-eslint/eslint-plugin';
-import angularEslintPlugin from '@angular-eslint/eslint-plugin';
+import angularEslint from '@angular-eslint/eslint-plugin';
 import angularTemplateParser from '@angular-eslint/template-parser';
 import angularTemplatePlugin from '@angular-eslint/eslint-plugin-template';
 import prettierPlugin from 'eslint-plugin-prettier';
 import prettierConfig from 'eslint-config-prettier';
+import globals from 'globals';
+
 
 export default [
   // Global ignores
@@ -26,8 +28,8 @@ export default [
       '**/*.d.ts',
 
       // Environment configuration
-      '.env'
-    ]
+      '.env',
+    ],
   },
 
   // JavaScript base configuration
@@ -39,6 +41,10 @@ export default [
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: 'module',
+      globals: {
+        ...globals.browser,
+        ...globals.node,
+      },
     },
   },
 
@@ -56,6 +62,7 @@ export default [
     plugins: {
       '@typescript-eslint': tsPlugin,
       'prettier': prettierPlugin,
+      '@angular-eslint': angularEslint,
     },
     rules: {
       ...tsPlugin.configs.recommended.rules,
@@ -66,16 +73,6 @@ export default [
         allowExpressions: true,
         allowTypedFunctionExpressions: true,
       }],
-      '@typescript-eslint/explicit-member-accessibility': [
-        'error',
-        {
-          accessibility: 'explicit',
-          overrides: {
-            constructors: 'no-public',
-            parameterProperties: 'no-public',
-          },
-        }],
-      '@typescript-eslint/member-ordering': 'error',
       '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/no-unused-vars': ['error', {
         argsIgnorePattern: '^_',
@@ -98,27 +95,23 @@ export default [
   {
     files: ['**/*.component.ts'],
     plugins: {
-      '@angular-eslint': angularEslintPlugin,
+      '@angular-eslint': angularEslint,
     },
     rules: {
-      ...angularEslintPlugin.configs.recommended.rules,
+      ...angularEslint.configs.recommended.rules,
       '@angular-eslint/component-selector': [
         'error',
-        { type: 'element', prefix: 'app', style: 'kebab-case' },
+        { type: 'element', prefix: 'kf', style: 'kebab-case' },
       ],
       '@angular-eslint/directive-selector': [
         'error',
-        { type: 'attribute', prefix: 'app', style: 'camelCase' },
+        { type: 'attribute', prefix: 'kf', style: 'camelCase' },
       ],
       '@angular-eslint/no-input-rename': 'error',
       '@angular-eslint/no-output-rename': 'error',
       '@angular-eslint/use-lifecycle-interface': 'error',
       '@angular-eslint/component-class-suffix': 'error',
       '@angular-eslint/directive-class-suffix': 'error',
-      // Removing the problematic rules:
-      // '@angular-eslint/no-host-metadata-property': 'error',
-      // '@angular-eslint/no-inputs-metadata-property': 'error',
-      // '@angular-eslint/no-outputs-metadata-property': 'error',
     },
   },
 

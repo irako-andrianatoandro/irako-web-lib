@@ -73,7 +73,8 @@ export class NumberFieldComponent {
 
   isInvalid(): boolean {
     return (
-      (this.control().invalid && (this.control().dirty || this.control().touched || this.submitted())) ??
+      (this.control().invalid &&
+        (this.control().dirty || this.control().touched || this.submitted())) ??
       false
     );
   }

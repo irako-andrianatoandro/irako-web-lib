@@ -1,5 +1,5 @@
 import { Component, computed, inject, output, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, NgClass } from '@angular/common';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 
 // PrimeNG Modules
@@ -28,6 +28,7 @@ import { DynamicFieldComponent } from '../dynamic-field/dynamic-field.component'
     MessageModule,
     ProgressSpinnerModule,
     DynamicFieldComponent,
+    NgClass,
   ],
   template: `
     <form [formGroup]="form()" (ngSubmit)="onSubmit()" class="p-fluid">
@@ -109,12 +110,19 @@ import { DynamicFieldComponent } from '../dynamic-field/dynamic-field.component'
   ],
 })
 export class DynamicFormComponent {
+  // Computed values
   private fb = inject(FormBuilder);
   private transformationService = inject(TransformationService);
   private validationService = inject(ValidationService);
 
   // Input signals
-  config = signal<FormConfig>({ id: 'default', title: '', description: '', fields: [], layout: 'vertical' });
+  config = signal<FormConfig>({
+    id: 'default',
+    title: '',
+    description: '',
+    fields: [],
+    layout: 'vertical',
+  });
 
   // Internal signals
   form = signal<FormGroup>(this.fb.group({}));
@@ -123,15 +131,13 @@ export class DynamicFormComponent {
   submitting = signal<boolean>(false);
   formError = signal<string>('');
 
-  // Output signals
-  formValue = output<Record<string, any>>({});
-  formValid = output<boolean>();
-
-
-  // Computed values
   visibleFields = computed(() => {
     return this.config()?.fields.filter(field => !field.hidden) || [];
   });
+
+  // Output signals
+  formValue = output<Record<string, any>>({});
+  formValid = output<boolean>();
 
   /**
    * Initialize form with configuration
@@ -166,7 +172,7 @@ export class DynamicFormComponent {
 
       formControls[field.key] = new FormControl(
         { value: fieldValue, disabled: field.disabled },
-        validators,
+        validators
       );
     });
 
@@ -227,9 +233,7 @@ export class DynamicFormComponent {
   /**
    * Handle field value changes
    */
-  onFieldValueChange(key: string, value: any): void {
-
-  }
+  onFieldValueChange(_key: string, _value: any): void {}
 
   /**
    * Transform output values using field transformers
@@ -245,7 +249,7 @@ export class DynamicFormComponent {
       if (field && field.transformer) {
         transformedValues[key] = this.transformationService.applyOutTransform(
           field.transformer,
-          value,
+          value
         );
       } else {
         transformedValues[key] = value;

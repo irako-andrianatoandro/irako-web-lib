@@ -1,5 +1,5 @@
 import { Component, input, output, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, NgClass } from '@angular/common';
 import { ReactiveFormsModule, FormControl } from '@angular/forms';
 
 // PrimeNG Modules
@@ -24,6 +24,7 @@ import { ValidationService } from '../../services';
     MultiSelectModule,
     RadioButtonModule,
     TooltipModule,
+    NgClass,
   ],
   template: `
     <label [for]="field().key" class="block text-900 font-medium mb-2">
@@ -43,7 +44,8 @@ import { ValidationService } from '../../services';
         [placeholder]="field().placeholder || 'Select an option'"
         [filter]="field().filter"
         [showClear]="true"
-        [ngClass]="{ 'ng-invalid ng-dirty': isInvalid() }"
+        [class.ng-invalid]="isInvalid()"
+        [class.ng-dirty]="isInvalid()"
         (onChange)="onValueChange($event)"
       ></p-dropdown>
     } @else if (field().type === 'multiselect') {
@@ -57,7 +59,8 @@ import { ValidationService } from '../../services';
         [filter]="field().filter"
         [showToggleAll]="true"
         [showClear]="true"
-        [ngClass]="{ 'ng-invalid ng-dirty': isInvalid() }"
+        [class.ng-invalid]="isInvalid()"
+        [class.ng-dirty]="isInvalid()"
         (onChange)="onValueChange($event)"
       ></p-multiSelect>
     } @else if (field().type === 'radio') {
@@ -72,7 +75,9 @@ import { ValidationService } from '../../services';
               [disabled]="option.disabled ?? false"
               (onClick)="onValueChange(option.value)"
             ></p-radioButton>
-            <label [for]="field().key + '_' + option.value" class="p-ml-2">{{ option.label }}</label>
+            <label [for]="field().key + '_' + option.value" class="p-ml-2">{{
+              option.label
+            }}</label>
           </div>
         }
       </div>
@@ -102,7 +107,8 @@ export class SelectFieldComponent {
 
   isInvalid(): boolean {
     return (
-      (this.control().invalid && (this.control().dirty || this.control().touched || this.submitted())) ??
+      (this.control().invalid &&
+        (this.control().dirty || this.control().touched || this.submitted())) ??
       false
     );
   }

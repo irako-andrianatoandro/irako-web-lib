@@ -9,7 +9,7 @@ export class ValidationService {
   /**
    * Get validator function from validation rule
    */
-  getValidator(rule: ValidationRule): ValidatorFn | null {
+  public getValidator(rule: ValidationRule): ValidatorFn | null {
     switch (rule.type) {
       case 'required':
         return Validators.required;
@@ -37,7 +37,7 @@ export class ValidationService {
   /**
    * Get all validators for a field
    */
-  getValidators(rules: ValidationRule[]): ValidatorFn[] {
+  public getValidators(rules: ValidationRule[]): ValidatorFn[] {
     if (!rules || rules.length === 0) {
       return [];
     }
@@ -48,7 +48,7 @@ export class ValidationService {
   /**
    * Get error message for a field
    */
-  getErrorMessage(control: AbstractControl, rules: ValidationRule[]): string {
+  public getErrorMessage(control: AbstractControl, rules: ValidationRule[]): string {
     if (!control || !control.errors || !rules) {
       return '';
     }

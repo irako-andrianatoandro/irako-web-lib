@@ -2,7 +2,6 @@ import { Component, computed, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 
-
 // Field components
 import { TextFieldComponent } from '../fields/text-field.component';
 import { NumberFieldComponent } from '../fields/number-field.component';

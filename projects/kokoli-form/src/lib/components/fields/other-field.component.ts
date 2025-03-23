@@ -71,7 +71,7 @@ export class OtherFieldComponent {
   field = input.required<OtherFieldConfig>();
   control = input.required<FormControl>();
   submitted = input<boolean>(false);
-  colorPickerFieldFormat = computed(() => this.field().format as "hex" | "rgb" | "hsb" || 'hex');
+  colorPickerFieldFormat = computed(() => (this.field().format as 'hex' | 'rgb' | 'hsb') || 'hex');
 
   valueChange = output<any>();
 
@@ -83,7 +83,8 @@ export class OtherFieldComponent {
 
   isInvalid(): boolean {
     return (
-      (this.control().invalid && (this.control().dirty || this.control().touched || this.submitted())) ??
+      (this.control().invalid &&
+        (this.control().dirty || this.control().touched || this.submitted())) ??
       false
     );
   }
