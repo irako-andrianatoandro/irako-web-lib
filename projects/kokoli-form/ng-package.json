@@ -3,5 +3,6 @@
   "dest": "../../dist/kokoli-form",
   "lib": {
     "entryFile": "src/public-api.ts"
-  }
+  },
+  "allowedNonPeerDependencies": ["*"]
 }

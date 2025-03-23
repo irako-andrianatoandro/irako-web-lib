@@ -29,7 +29,9 @@ jobs:
         run: npm run lint
 
       - name: Build
-        run: npm run build -- --configuration production
+        run: |
+          npm install --no-save --legacy-peer-deps
+          npm run build -- --configuration production
 
       - name: Test
         run: npm run test -- --no-watch --no-progress --browsers=ChromeHeadless
