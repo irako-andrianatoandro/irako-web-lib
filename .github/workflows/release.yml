@@ -81,10 +81,11 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN || secrets.GITHUB_TOKEN }}
           NEW_VERSION: ${{ steps.semantic-release.outputs.new_version || 'v0.0.0' }}
         run: |
-          gh release create "$NEW_VERSION" \
-            --title "Release $NEW_VERSION" \
-            --generate-notes \
-            ./dist/**/*
+          # Create the release first
+          gh release create "$NEW_VERSION" --title "Release $NEW_VERSION" --generate-notes
+
+          # Then upload files (not directories) as assets
+          find ./dist -type f -exec gh release upload "$NEW_VERSION" {} \;
 
       - name: npm publish
         run: npm run publish
