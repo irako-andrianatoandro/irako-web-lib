@@ -33,8 +33,9 @@ import { ValidationService } from '../../services';
         [placeholder]="field().placeholder || ''"
         [rows]="field().rows || 3"
         [cols]="field().cols || 30"
-        [maxlength]="field().maxLength"
-        [ngClass]="{ 'ng-invalid ng-dirty': isInvalid() }"
+        [maxlength]="field().maxLength ?? null"
+        [class.ng-invalid]="isInvalid()"
+        [class.ng-dirty]="isInvalid()"
         (input)="onValueChange($event)"
       ></textarea>
     } @else {
@@ -44,8 +45,9 @@ import { ValidationService } from '../../services';
         pInputText
         [formControl]="control()"
         [placeholder]="field().placeholder || ''"
-        [maxlength]="field().maxLength"
-        [ngClass]="{ 'ng-invalid ng-dirty': isInvalid() }"
+        [maxlength]="field().maxLength ?? null"
+        [class.ng-invalid]="isInvalid()"
+        [class.ng-dirty]="isInvalid()"
         (input)="onValueChange($event)"
       />
     }

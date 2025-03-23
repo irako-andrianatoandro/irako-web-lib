@@ -38,14 +38,6 @@ To use any of the libraries in your Angular project:
 npm install @irako-web-lib/kokoli-form
 ```
 
-## 📋 Project Structure
-irako-web-lib/
-├── projects/         # Contains all library packages
-│   ├── kokoli-form/  # Dynamic form generation library
-│   └── ... (future libraries)
-├── package.json      # Root package configuration
-└── README.md         # This documentation
-
 ## 🛠 Development
 
 ### Setting up the development environment
