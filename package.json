@@ -17,7 +17,6 @@
     "lint:kokoli": "ng lint kokoli-form",
     "lint:kokoli:fix": "ng lint kokoli-form --fix"
   },
-  "private": true,
   "dependencies": {
     "@angular/animations": "^18.2.13",
     "@angular/common": "^18.2.13",
