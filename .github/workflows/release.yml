@@ -56,6 +56,13 @@ jobs:
             echo "build_id=main-$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
           fi
 
+      - name: List available artifacts
+        run: |
+          echo "Available artifacts from build workflow:"
+          gh api "/repos/${{ github.repository }}/actions/runs/${{ github.event.workflow_run.id }}/artifacts" | jq '.artifacts[] | .name'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       # Download the specific build artifact we want to release
       - name: Download build artifact
         uses: actions/download-artifact@v4
