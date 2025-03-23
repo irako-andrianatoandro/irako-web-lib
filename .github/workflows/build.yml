@@ -3,6 +3,10 @@ name: Build and Test
 on:
   push:
     branches: [ main, 'feature/**', 'bugfix/**' ]
+    paths:
+      - 'projects/**'
+      - 'package.json'
+      - 'package-lock.json'
   pull_request:
     branches: [ main ]
   # Optional: Allow manual triggering
@@ -33,7 +37,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '21'
           cache: 'npm'
 
       - name: Install dependencies
@@ -43,9 +47,13 @@ jobs:
         id: lint
         run: npm run lint
 
-      - name: Build
-        id: build
+      - name: Build Application
+        id: build-app
         run: npm run build -- --configuration production
+
+      - name: Build Kokoli Form Library
+        id: build-lib
+        run: npm run build kokoli-form
 
       - name: Test
         id: test
@@ -57,13 +65,22 @@ jobs:
         run: echo "build_id=$(echo ${GITHUB_REF#refs/heads/} | sed 's/\//_/g')-$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
 
       # Cache build artifacts with unique ID
-      - name: Upload build artifact
+      - name: Upload application build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: dist-${{ steps.build-id.outputs.build_id }}
+          name: app-dist-${{ steps.build-id.outputs.build_id }}
           path: dist/
           retention-days: 7  # Keep for reasonable time to allow releases
           if-no-files-found: error  # Fail if build produced no files
+
+      # Upload library build artifact separately
+      - name: Upload library build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: kokoli-form-dist-${{ steps.build-id.outputs.build_id }}
+          path: dist/kokoli-form/
+          retention-days: 7
+          if-no-files-found: error
 
       # Add a status check
       - name: Build status

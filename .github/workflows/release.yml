@@ -13,6 +13,10 @@ on:
       build_id:
         description: 'Build ID to release (e.g., main-abc1234)'
         required: true
+      lib_only:
+        description: 'Only release the library (true/false)'
+        required: false
+        default: 'false'
 
 # Set specific permissions needed for releases
 permissions:
@@ -21,8 +25,8 @@ permissions:
   pull-requests: write  # Needed for linking PRs to releases
 
 jobs:
-  release:
-    name: Version and Release
+  release-kokoli-form:
+    name: Version and Release Kokoli Form
     # Only run if build was successful or manually triggered
     if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
@@ -40,16 +44,16 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '21'
           cache: 'npm'
           registry-url: 'https://registry.npmjs.org/'
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Build
-        id: build
-        run: npm run build -- --configuration production
+      - name: Build Library
+        id: build-lib
+        run: npm run build kokoli-form
 
       # Get build ID either from manual input or latest successful build
       - name: Set build ID
@@ -66,32 +70,85 @@ jobs:
           git config --global user.email "github-actions@github.com"
           git config --global user.name "GitHub Actions"
 
-      # Semantic versioning using semantic-release
-      - name: Semantic Release
-        env:
-          # Use specific release token if available, fallback to default
-          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN || secrets.GITHUB_TOKEN }}
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: npx semantic-release
-
-      # Optional: Create GitHub release with generated release notes
-      - name: Create GitHub Release
-        id: create-release
-        if: ${{ env.NEW_VERSION != '' }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN || secrets.GITHUB_TOKEN }}
-          NEW_VERSION: ${{ steps.semantic-release.outputs.new_version || 'v0.0.0' }}
+      # Update version in kokoli-form package.json
+      - name: Update Library Version
+        id: version-lib
         run: |
-          # Create the release first
-          gh release create "$NEW_VERSION" --title "Release $NEW_VERSION" --generate-notes
+          cd projects/kokoli-form
+          # Extract version from semantic-release or use patch
+          NEW_VERSION=$(npx semantic-release --dry-run | grep "next release version is" | sed -E 's/.+([0-9]+\.[0-9]+\.[0-9]+).+/\1/')
 
-          # Then upload files (not directories) as assets
-          find ./dist -type f -exec gh release upload "$NEW_VERSION" {} \;
+          if [ -z "$NEW_VERSION" ]; then
+            # If semantic-release doesn't provide a version, increment patch
+            CURRENT_VERSION=$(node -e "console.log(require('./package.json').version)")
+            IFS='.' read -ra VERSION_PARTS <<< "$CURRENT_VERSION"
+            NEW_VERSION="${VERSION_PARTS[0]}.${VERSION_PARTS[1]}.$((VERSION_PARTS[2] + 1))"
+          fi
 
-      - name: npm publish
+          # Update version in package.json
+          npm version $NEW_VERSION --no-git-tag-version
+          echo "lib_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+
+      # Build with updated version
+      - name: Rebuild Library
+        run: npm run build kokoli-form
+
+      # Library-specific release and npm publish
+      - name: Publish Library to NPM
+        working-directory: ./dist/kokoli-form
         run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      # Create GitHub release for library
+      - name: Create GitHub Release for Library
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN || secrets.GITHUB_TOKEN }}
+          NEW_VERSION: ${{ steps.version-lib.outputs.lib_version }}
+        run: |
+          # Create tag and release for the library
+          git tag "kokoli-form-v$NEW_VERSION"
+          git push origin "kokoli-form-v$NEW_VERSION"
+
+          # Create GitHub release
+          gh release create "kokoli-form-v$NEW_VERSION" \
+            --title "Kokoli Form v$NEW_VERSION" \
+            --notes "Release of @irako-web-lib/kokoli-form v$NEW_VERSION" \
+            --target main
+
+  # Keep the main application release job if needed (conditional)
+  release-app:
+    name: Version and Release Application
+    needs: release-kokoli-form
+    # Only run for app release, not when lib_only is true
+    if: ${{ github.event.inputs.lib_only != 'true' && (github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch') }}
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.RELEASE_TOKEN || secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '21'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build App
+        run: npm run build -- --configuration production
+
+      # Original application release steps
+      - name: Semantic Release for App
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN || secrets.GITHUB_TOKEN }}
+        run: npx semantic-release
 
       # Optional: Notify about release
       - name: Post-release notification
