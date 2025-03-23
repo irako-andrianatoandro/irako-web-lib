@@ -1,0 +1,105 @@
+name: Release
+
+on:
+  # Only run after build workflow completes successfully on main branch
+  workflow_run:
+    workflows: ["Build and Test"]
+    branches: [main]
+    types:
+      - completed
+  # Optional: Allow manual release trigger with required input
+  workflow_dispatch:
+    inputs:
+      build_id:
+        description: 'Build ID to release (e.g., main-abc1234)'
+        required: true
+
+# Set specific permissions needed for releases
+permissions:
+  contents: write  # Needed for creating tags and releases
+  issues: write    # Needed for creating release notes from issues
+  pull-requests: write  # Needed for linking PRs to releases
+
+jobs:
+  release:
+    name: Version and Release
+    # Only run if build was successful or manually triggered
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
+    runs-on: ubuntu-latest
+    # Use a specific environment for secrets management
+    environment: production
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for versioning
+          # Use a token with elevated permissions for releases
+          token: ${{ secrets.RELEASE_TOKEN || secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Get build ID either from manual input or latest successful build
+      - name: Set build ID
+        id: set-build-id
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "build_id=${{ github.event.inputs.build_id }}" >> $GITHUB_OUTPUT
+          else
+            echo "build_id=main-$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+          fi
+
+      # Download the specific build artifact we want to release
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: dist-${{ steps.set-build-id.outputs.build_id }}
+          path: dist/
+
+      - name: Check artifact integrity
+        run: |
+          if [ ! -d "dist" ] || [ -z "$(ls -A dist)" ]; then
+            echo "Error: Build artifacts are missing or empty!"
+            exit 1
+          fi
+          echo "Build artifacts verified successfully"
+
+      - name: Setup Git identity
+        run: |
+          git config --global user.email "github-actions@github.com"
+          git config --global user.name "GitHub Actions"
+
+      # Semantic versioning using semantic-release
+      - name: Semantic Release
+        env:
+          # Use specific release token if available, fallback to default
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN || secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npx semantic-release
+
+      # Optional: Create GitHub release with generated release notes
+      - name: Create GitHub Release
+        id: create-release
+        if: ${{ env.NEW_VERSION != '' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN || secrets.GITHUB_TOKEN }}
+          NEW_VERSION: ${{ steps.semantic-release.outputs.new_version || 'v0.0.0' }}
+        run: |
+          gh release create "$NEW_VERSION" \
+            --title "Release $NEW_VERSION" \
+            --generate-notes \
+            ./dist/**/*
+
+      # Optional: Notify about release
+      - name: Post-release notification
+        if: success()
+        run: |
+          echo "Release completed successfully!"
+          # Add notification logic here (e.g., Slack, Discord, etc.)
